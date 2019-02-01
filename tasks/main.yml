@@ -1,0 +1,24 @@
+- name: install ntpdate
+  yum:
+    name: ntpdate
+    state: latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: install ntpdate
+  apt:
+    name: ntpdate
+    state: latest
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+
+- name: Set Prague timezone
+  command: timedatectl set-timezone Europe/Prague
+- name: Sync time
+  command: ntpdate 1.cz.pool.ntp.org
+
+- cron:
+    name: "NTP sync time"
+    minute: "0"
+    hour: "1"
+    job: "/usr/sbin/ntpdate -s -u 1.cz.pool.ntp.org > /dev/null 2>&1"
+    state: present
